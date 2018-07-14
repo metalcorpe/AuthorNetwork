@@ -28,11 +28,11 @@ class AuthNet:
         """Size of ID Array"""
         return len(self.id_table)
 
-    def lin_space(self, n=None):
+    def lin_space(self):
         """Q2"""
         """Linear Timestamp Space"""
-        if n is not None:
-            self.n = n
+        # if n is not None:
+        #     self.n = n
         if self.n < 1 and self.debug == True:
             raise print('Bad n value:', self.n)
         return np.linspace(self.time_min(), self.time_max(), self.n)
@@ -66,7 +66,7 @@ if __name__=="__main__":
     # print(net.id_size())
     # print(net.lin_space())
     # a = net.time_min()
-
+    # net.histogram()
     # net.id_table[:,
     # print()
     # net.gi()
