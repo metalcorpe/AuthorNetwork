@@ -1,4 +1,8 @@
 import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
+
+
 
 def file_import(file):
     """Imports the Author Network file that must contain the source_id, target_id, timestamp"""
@@ -24,6 +28,26 @@ class AuthNet:
         """Maximum Timestamp"""
         return max(self.id_table[:,2])
 
+    def t_j(self, j = 3):
+        """"""
+        return self.time_min() + j * int((self.dt()/self.n))
+
+    def t_j_array(self,j = 3):
+        return min(np.where((self.id_table[:, 2] >= self.t_j(j=j-1)) & (self.id_table[:, 2] <= self.t_j(j=j))))
+
+    def V(self, j = 3):
+        ass = self.t_j_array(j=j)
+        return np.unique(self.id_table[ass,0:1])
+
+
+    def E(self, j = 3):
+        ass = self.t_j_array(j=j)
+        return self.id_table[min(ass):max(ass),(0,1)]
+
+    def dt(self):
+        return self.time_max() - self.time_min()
+
+
     def id_size(self):
         """Size of ID Array"""
         return len(self.id_table)
@@ -40,18 +64,34 @@ class AuthNet:
     def histogram(self):
         """Q3"""
         """Plot the Timestamp Histogram"""
-        import matplotlib.pyplot as plt
         plt.hist(self.id_table[:, 2], self.lin_space())
         plt.show()
 
-    def gi(self, j = 1):
-        """Sl 1: TODO Assume that the timestamps are shorted"""
-        """1<=j<=N"""
-        if j not in range(1,self.n) and self.debug == True:
-            raise print('Bad j value:', j)
-        return np.arange(self.lin_space()[j-1],self.lin_space()[j])
+    def Gi(self, j = 3):
+        # """Sl 1: TODO Assume that the timestamps are shorted"""
+        # """1<=j<=N"""
+        # if j not in range(1,self.n) and self.debug == True:
+        #     raise print('Bad j value:', j)
 
+        G = nx.DiGraph()
+        # G.add_nodes_from(self.V(j=j).tolist())
+        G.add_edges_from(self.E(j=j))
+        return G
 
+        # return np.arange(self.lin_space()[j-1],self.lin_space()[j])
+
+    def g_graph(self):
+        options = {
+            'node_color': 'red',
+            'node_size': 10,
+            'width': 1,
+        }
+        nx.draw(self.Gi(j=3), **options)
+        plt.show()
+
+    def degr_central(self):
+        nx.algorithms.centrality.degree_centrality(self.Gi(j=3))
+        plt.show()
 
 
 if __name__=="__main__":
@@ -69,18 +109,18 @@ if __name__=="__main__":
     # net.histogram()
     # net.id_table[:,
     # print()
-    # net.gi()
-    # print(np.max(net.id_table,0))
-    # net.histogram()
-    # a = np.empty([1,4],dtype=int)
-    # print(a)
-    # for j in range(1, net.n):
-    #     # print(j)
-    #     for x in range(1, net.id_size()):
-    #         # print(x)
-    #         if net.id_table[x,2] in np.arange(net.lin_space()[j-1],net.lin_space()[j]):
-    #             print(net.id_table[x,:])
-    #             a = np.append(a, [j, net.id_table[x,:] ], axis=0)
-    # #
-    # #
-    # # p = [q.index(v) if net.id_table[:,x] in range(1,2) else pass for x in range(0, net.id_size())]
+    # net.G(j=1)
+    # print(net.degr_central())
+
+    a = nx.degree_centrality(net.Gi())
+    b = nx.in_degree_centrality(net.Gi())
+    c = nx.out_degree_centrality(net.Gi())
+    d = nx.closeness_centrality(net.Gi())
+    e = nx.betweenness_centrality(net.Gi())
+    f = nx.eigenvector_centrality(net.Gi())
+    g = nx.katz_centrality(net.Gi())
+    # for v in net.Gi().nodes():
+        # print("%0.2d %5.3f" % (v, d[v]))
+    # nx.draw(net.Gi())
+    # plt.show()
+    net.g_graph()
